@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Notifcation Survey</title>
+    <script src="https://code.jquery.com/jquery-1.12.3.js"></script>
+    <style>
+      body p {
+        font-size: 1.5em;
+      }
+      body input {
+        font-size: 1.5em;
+      }
+      .option {
+        width: 500px;
+        text-align: center;
+        margin: 3px 3px 3px 3px;
+      }
+    </style>
+  </head>
+  <body style="background-color:#e3f3fc">
+    <script>
+      var kAppreciateMs = 5 * 60 * 1000;
+
+      var questionIdx = 0;
+      var surveyDuration = 0;
+      var pauseTime = 0;
+
+      var hour = 0;
+      var minute = 0;
+      var day = 0;
+      var place = '';
+      var activity = '';
+      var lastResponseTime = 0;
+
+      var results = "";
+
+      function pickOne(arr) {
+        idx = Math.floor(Math.random() * arr.length);
+        return arr[idx];
+      }
+      
+      function pickOneWithWeight(arr) {
+        weightSum = 0.;
+        for (key in arr)
+          weightSum += arr[key];
+        
+        die = Math.random() * weightSum;
+        for (key in arr) {
+          die -= arr[key];
+          if (die < 0.)
+            return key;
+        }
+      }
+
+      function prepareQuestion() {
+        questionIdx++;
+        hour = Math.floor(Math.random() * 12) + 10;
+        minute = Math.floor(Math.random() * 12) * 5;
+        day = Math.floor(Math.random() * 7);
+        place = pickOne(["home", "work", "others"]);
+        activity = pickOneWithWeight({"stationary":0.7, "walking":0.1, "running":0.1, "driving":0.1});
+        lastResponseTime = Math.floor(Math.random() * 120) + 3;
+      }
+
+      function paddingZeros(v) {
+        v = '' + v;
+        while (v.length < 2)
+          v = '0' + v;
+        return v;
+      }
+
+      function render() {
+        if (Date.now() > pauseTime) {
+          $("#queryCard").hide();
+          $("#appreciateCard").show();
+          renderAppreciation();
+        } else {
+          $("#queryCard").show();
+          $("#appreciateCard").hide();
+          renderQuestion();
+        }
+      }
+
+      function renderQuestion() {
+        sentences = [];
+
+        sentences.push("(#" + questionIdx + ") ");
+
+        strAmPm = (hour >= 12 ? "PM" : "AM");
+        displayHour = (hour > 12 ? hour - 12 : hour);
+        strDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][day];
+        sentences.push("It is <u>" + displayHour + ":" + paddingZeros(minute) + " " + strAmPm + "</u> on <u>" + strDay + "</u>. ");
+        
+        if (place == "others")
+          strPlace = "You're at <u>somewhere else</u> than at home and at work";
+        else
+          strPlace = "You're <u>at " + place + "</u>";
+        sentences.push(strPlace + ". ");
+
+        if (activity == "stationary")
+          strActivity = "Your phone is <u>stationary</u>";
+        else
+          strActivity = "You're <u>" + activity + "</u>";
+        sentences.push(strActivity + ". ");
+
+        if (lastResponseTime < 60)
+          strResponseTime = lastResponseTime + " minutes";
+        else if (lastResponseTime < 66)
+          strResponseTime = "1 hour";
+        else
+          strResponseTime = parseInt(lastResponseTime / 6) / 10 + " hours";
+        sentences.push("You responded (or clicked) a notification <u>" + strResponseTime + "</u> ago. ");
+        
+        sentences.push("Now you receive a notifcation from our app to complete the short survey. The survey inquires your current location. What is your action?");
+
+        if ($("#modeNormal").attr("disabled") === "disabled") {
+          $("#textSection").html("<p>" + sentences.join('') + "</p>");
+        }
+        else {
+          $("#textSection").html(sentences.map(sec => ("<p>" + sec + "</p>")).join(''));
+        }
+      }
+
+      function renderAppreciation() {
+        if (questionIdx < 100) {
+          $("#appreciateText").html("<p>We want to say thank you for your contribution so far. Although we hope to get 100 responses from each user, it's okay if you stop at anytime.</p>");
+        } else {
+          $("#appreciateText").html("<p>We want to say thank you for your contribution so far. We always hope to get as many response to train a better model, as a kind reminder, we want to remind you that you can stop the experiment whenever you like.</p>");
+        }
+      }
+
+      function getResponse(response) {
+        results += [hour, minute, day, place, activity, lastResponseTime, response].join() + "\n";
+        prepareQuestion();
+        render();
+      }
+      function setViewMode(modeLineBreak) {
+        if (modeLineBreak) {
+          $("#modeNormal").removeAttr("disabled");
+          $("#modeLineBreak").attr("disabled", "disabled");
+        } else {
+          $("#modeNormal").attr("disabled", "disabled");
+          $("#modeLineBreak").removeAttr("disabled");
+        }
+        renderQuestion();
+      }
+
+      function terminate() {
+        $("body").css("background-color", "#fce4db");
+        $("#textResult").text(results);
+        $("#queryPage").hide();
+        $("#resultPage").show();
+      }
+      function acknowledgeGratitude() {
+        pauseTime = Date.now() + kAppreciateMs;
+        render();
+      }
+    </script>
+
+    <div>
+      <h1>Notification Survey</h1>
+      <hr/>
+    </div>
+    <div id="introPage">
+      <p>This is a survey for understanding how people interact with notifications under different scenario based on time, location, and motion state. The context is that you are participanting a user study. The requirement of this study is to label your current place down to the meter-square level, for example, I'm standing behind my home desk, or I'm sitting in the library, the 5th seat from the left of the 2nd row. The study app has been installed on your phone, and this study app will send you notifications to ask you provide the place labels.</p>
+      <p>We will give the scenario. Please enter your response according to each scenario.</p>
+      <p>There is no end in this survey, and you can stop this survey whenever you like by clicking "End The Suvery." For your reference, 100 responses would be a good amount.</p>
+      <p style="color:red; font-weight:bold">This is important: When you click "End The Survey" button, please copy the result and send it to me. There will be more instructions for how to send the result back.</p>
+      <p>&nbsp;</p>
+      <script>
+        function readyButton() {
+          $("#introPage").hide();
+          $("#queryPage").show();
+          pauseTime = Date.now() + kAppreciateMs;
+          prepareQuestion();
+          renderQuestion();
+        }
+      </script>
+      <input type="button" value="I'm ready to take the survey" onclick="readyButton()" />
+    </div>
+    <div id="queryPage">
+      <div id="queryCard">
+        <div id="buttonSection" style="text-align:right">
+          View mode:
+          <input type="button" id="modeNormal" style="font-size:1em" value="normal" disabled="true" onclick="setViewMode(false)" />
+          <input type="button" id="modeLineBreak" style="font-size:1em" value="advanced" onclick="setViewMode(true)" />
+        </div>
+        <div id="textSection">
+        </div>
+        <div id="confirmSection">
+          <input type="button" value="Ignore this notification" class="option" onclick="getResponse('ignore')" />
+          <br/>
+          <input type="button" value="Dismiss this notification" class="option" onclick="getResponse('dismiss')" />
+          <br/>
+          <input type="button" value="Take one minute to answer the survey" class="option" onclick="getResponse('answer')" />
+          <br/>
+          <input type="button" value="Leave it and answer this notifcation later" class="option" onclick="getResponse('later')" />
+          <br/>
+          <input type="button" value="This is an invalid setup for me" class="option" onclick="getResponse('invalid')" />
+          <br/>
+        </div>
+        
+        <div style="text-align:center; padding-top:60px">
+          <input type="button" value="End The Survey" style="font-size:2em" onclick="terminate()" />
+        </div>
+      </div>
+      <div id="appreciateCard">
+        <div id="appreciateText"></div>
+        <div>
+          <input type="button" value="End The Survey" style="font-size:2em; margin-right:10px" onclick="terminate()" />
+          <input type="button" value="It's okay I can continue" style="font-size:2em" onclick="acknowledgeGratitude()" />
+        </div>
+      </div>
+    </div>
+    <div id="resultPage" style="text-align:center">
+      <p style="color:red; font-weight:bold">Thanks for participation!</p>
+      <p>(Step 1) Please copy the text in the following box</p>
+      <textarea id="textResult" rows="20" style="width:70%; margin:0 15% 0 15%">
+      </textarea>
+      <p>(Step 2) Then email to <a href="mailto:bojhang@cs.ucla.edu?Subject=My%20notification%20survey%20result" target="_top">bojhang@cs.ucla.edu</p>
+    </div>
+    <script>
+      $("#queryPage").hide();
+      $("#appreciateCard").hide();
+      $("#resultPage").hide();
+    </script>
+  </body>
+</html>

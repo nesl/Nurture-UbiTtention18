@@ -1,0 +1,19 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+*~
+__MACOSX
+
+#Original files
+*.org
+
+#Python
+__pycache__
+*.pyc
+
+#IPython
+.ipynb_checkpoints
+
+#symbolic links
+data
+export_figures

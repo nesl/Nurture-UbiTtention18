@@ -1,0 +1,12 @@
+16,0,0,work,walking,90,answer
+16,30,3,others,stationary,55,answer
+19,20,1,others,driving,121,ignore
+13,5,4,work,walking,113,answer
+10,50,3,others,stationary,101,invalid
+15,20,3,home,running,10,invalid
+18,30,2,home,running,65,invalid
+18,15,3,home,walking,87,answer
+17,50,6,others,stationary,54,ignore
+11,20,2,home,walking,57,answer
+10,5,5,work,running,55,invalid
+
