@@ -7,8 +7,8 @@ In our *Nurture* project, we conducted two simulation-based experiments to study
 
 __Note:__ Unfortuantely, as we did not seek permission for redistribution of the data during the informed consent process, due to restrictions fro mthe IRB protocol we are unable to provide third party access to the dataset. Our apologies!
 
-~~Please contact the PI [Mani Srivastava](https://www.ee.ucla.edu/mani-srivastava/) for the dataset. Once you get the dataset, you have to make a couple of symbolic links so that the codebase can be aware of these datasets. Trace this repository and it will be mentioned in `README.md` in different folders.
+~~Please contact the PI [Mani Srivastava](https://www.ee.ucla.edu/mani-srivastava/) for the dataset. Once you get the dataset, you have to make a couple of symbolic links so that the codebase can be aware of these datasets. Trace this repository and it will be mentioned in `README.md` in different folders.~~
 
-~~For the current folder, please make the following symbolic link:
+~~For the current folder, please make the following symbolic link:~~
 
-~~`ln -s /path/to/figure/folder export_figures`
+~~`ln -s /path/to/figure/folder export_figures`~~
